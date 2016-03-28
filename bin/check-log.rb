@@ -106,6 +106,12 @@ class CheckLog < Sensu::Plugin::Check::CLI
          boolean: true,
          default: false
 
+  option :line_length,
+         description: 'Matched line length (default:250)',
+         short: '-l N',
+         long: '--line-length N',
+         default: 250
+
   def run
     unknown 'No log file specified' unless config[:log_file] || config[:file_pattern]
     unknown 'No pattern specified' unless config[:pattern]
@@ -187,7 +193,7 @@ class CheckLog < Sensu::Plugin::Check::CLI
         m = line.match(config[:pattern]) unless line.match(config[:exclude])
       end
       if m
-        accumulative_error += "\n" + line.slice(0, 250)
+        accumulative_error += "\n" + line.slice(0, config[:line_length].to_i)
         if m[1]
           if config[:crit] && m[1].to_i > config[:crit]
             n_crits += 1
